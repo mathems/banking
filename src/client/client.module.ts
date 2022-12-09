@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClientController } from './controller/client.controller';
 import { ClientService } from './service/client.service';
-import { ClientAccount, ClientAccountSchema } from './shcema/сlientAccount.schema';
+import { ClientAccount, ClientAccountSchema } from './shcemas/сlientAccount.schema';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: ClientAccount.name, schema: ClientAccountSchema }])],

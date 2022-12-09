@@ -1,7 +1,7 @@
 import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ClientAccount, ClientAccountDocument } from '../shcema/сlientAccount.schema';
+import { ClientAccount, ClientAccountDocument } from '../shcemas/сlientAccount.schema';
 import { ClientAccountDto } from '../dto/clientAccount';
 import { BalanceDto } from '../dto/balance.dto';
 import { DepositDto } from '../dto/deposit.dto';
@@ -17,16 +17,17 @@ export class ClientService {
     const client = await this.clientAccountModel.create({
       name: clientAccountDto.name,
       surname: clientAccountDto.surname,
-      accountNumber: clientAccountDto.accountNumber,
+      accountNumber: clientAccountDto.generateAccountNumber(),
       balance: clientAccountDto.balance
     });
-    return await client.save()
+    await client.save()
+    return cli
   };
 
-  async showAccountNumber(clientAccountDto: ClientAccountDto): Promise<number> {
-    const createdAccountNumber = clientAccountDto.accountNumber
-    return await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
-  };
+  // async showAccountNumber(clientAccountDto: ClientAccountDto): Promise<number> {
+  //   const createdAccountNumber = clientAccountDto.accountNumber
+  //   await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
+  // };
 
   async showCurrentBalance(balanceDto: BalanceDto): Promise<number> {
     const createdAccountNumber = balanceDto.accountNumber

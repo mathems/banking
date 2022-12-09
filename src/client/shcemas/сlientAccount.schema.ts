@@ -18,17 +18,13 @@ export class ClientAccount {
   surname: string;
 
   @Prop({
-    unique: true,
-    min: 1000,
-    max: 100000,
+    default: 1000,
     type: SchemaTypes.Number,
   })
   accountNumber: number;
 
   @Prop({
-    unique: true,
-    min: 1000,
-    max: 100000,
+    default: 1100,
     type: SchemaTypes.Number,
   })
   recipientAccountNumber: number;
@@ -43,28 +39,25 @@ export class ClientAccount {
   balance: number
 
   @Prop({
-    default: {
-      min: 500,
-      max: 100.000,
-      type: SchemaTypes.Number,
-    }
+    default: 0,
+    type: SchemaTypes.Number,
   })
   amountToTransfer: number
 
   @Prop({
-    default: null,
+    expires: 60 * 60 * 24 * 1000,
     type: SchemaTypes.Date
   })
   lastWithdrawAt: Date
 
   @Prop({
-    default: null,
+    expires: 60 * 60 * 24 * 1000,
     type: SchemaTypes.Date
   })
   lastDepositAt: Date
 
   @Prop({
-    default: null,
+    expires: 60 * 60 * 24 * 1000,
     type: SchemaTypes.Date
   })
   lastTransferAt: Date
