@@ -17,9 +17,7 @@ export class ClientController {
     if (!clientAccountDto.name || !clientAccountDto.surname) {
       throw BadRequestException
     }
-    await this.clientService.createAccount(clientAccountDto)
-
-    const accountNumber = await this.clientService.showAccountNumber(clientAccountDto)
+    const accountNumber = await this.clientService.createAccount(clientAccountDto)
     return `Your new Bank Account Number is: ${accountNumber}`
   }
 
