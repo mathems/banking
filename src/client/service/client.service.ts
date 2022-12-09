@@ -32,30 +32,48 @@ export class ClientService {
     return await this.clientAccountModel.findOne({ balance: currentClient.balance });
   };
 
+
+  async validateClientsTime(counter: number, firstTransactionTime: Date): Promise<boolean> {
+
+    const limitTransaction = new Date(new Date(firstTransactionTime).getTime() + 60 * 60 * 24 * 1000);
+    if (counter >= 3 && limitTransaction.toISOString() > new Date().toISOString()) {
+      return false
+    }
+    if (counter >= 3 && limitTransaction.toISOString() < new Date().toISOString()) {
+      return true
+    }
+  }
+
   async depositOnAccount(depositDto: DepositDto): Promise<number> {
     const createdAccountNumber = depositDto.accountNumber
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
     const updatedBalance = currentClient.balance + depositDto.amount;
-    currentClient.updateOne({ balance: updatedBalance })
-    const transaction = await currentClient.updateOne({ lastDepositAt: new Date() }) // TODO implement counter 3 times per 24 hours.
-    if (transaction) {
-      await currentClient.updateOne({ counter: +1 });
+    if (await currentClient.lastDepositAt === null) {
+      await currentClient.updateOne({ lastDepositAt: new Date() })
     }
-    if (transaction >= 3) {
+    const firstTransactionTime = await currentClient.lastDepositAt;
+
+    const maxTransactions = await currentClient.counter
+
+    if (!this.validateClientsTime(maxTransactions, firstTransactionTime)) {
       throw new RequestTimeoutException();
     }
-    return await updatedBalance
+    if (this.validateClientsTime(maxTransactions, firstTransactionTime) && (updatedBalance >= 500 && updatedBalance <= 50.000)) {
+      await currentClient.updateOne({ lastDepositAt: new Date() })
+      await currentClient.updateOne({ balance: updatedBalance })
+      await currentClient.updateOne({ counter: +1 })
+    }
+    return await currentClient.balance
   };
 
   async withdrawFromAccount(): Promise<number> {
     return await
-    };
-  я
+    }
+
   async limitOfTransactionsForLastDayIsExceeded(userId: number): Promise<boolean> {
 
 
     return await
-      };
-
+      }
 
 }

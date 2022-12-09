@@ -52,8 +52,7 @@ export class ClientAccount {
   })
   lastTransferAt: Date
   @Prop({
-    default: 0,
-    max: 3,
+    default: null,
     type: Number
   })
   counter: number
