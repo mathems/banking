@@ -18,10 +18,6 @@ export class ClientAccount {
   surname: string;
 
   @Prop({
-    required: [
-      function () { return this.name != null && this.surname != null },
-      'accountNumber is required if name and surname are specified'
-    ],
     unique: true,
     min: 1000,
     max: 100000,
@@ -55,6 +51,12 @@ export class ClientAccount {
     type: SchemaTypes.Date
   })
   lastTransferAt: Date
+  @Prop({
+    default: 0,
+    max: 3,
+    type: Number
+  })
+  counter: number
 }
 
 export const ClientAccountSchema = SchemaFactory.createForClass(ClientAccount);
