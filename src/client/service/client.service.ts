@@ -7,6 +7,7 @@ import { BalanceDto } from '../dto/balance.dto';
 import { DepositDto } from '../dto/deposit.dto';
 import { WithdrawDto } from '../dto/withdrow.dto';
 import { TransferDto } from '../dto/transfer.dto';
+var rn = require('random-number');
 
 @Injectable()
 export class ClientService {
@@ -14,10 +15,16 @@ export class ClientService {
     @InjectModel(ClientAccount.name) private clientAccountModel: Model<ClientAccountDocument>) { }
 
   async createAccount(clientAccountDto: ClientAccountDto): Promise<number> {
+    const options = {
+      min: 1000
+      , max: 100000
+      , integer: true
+    }
+    const defaultValue = clientAccountDto.accountNumber = rn(options);
     const client = await this.clientAccountModel.create({
       name: clientAccountDto.name,
       surname: clientAccountDto.surname,
-      accountNumber: clientAccountDto.generateAccountNumber(),
+      accountNumber: defaultValue,
       balance: clientAccountDto.balance
     });
     await client.save();

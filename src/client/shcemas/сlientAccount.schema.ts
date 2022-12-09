@@ -18,23 +18,18 @@ export class ClientAccount {
   surname: string;
 
   @Prop({
-    default: 1000,
     type: SchemaTypes.Number,
   })
   accountNumber: number;
 
   @Prop({
-    default: 1100,
     type: SchemaTypes.Number,
   })
   recipientAccountNumber: number;
 
   @Prop({
-    default: {
-      min: 500,
-      max: 100.000,
-      type: SchemaTypes.Number,
-    }
+    default: 0,
+    type: SchemaTypes.Number,
   })
   balance: number
 
