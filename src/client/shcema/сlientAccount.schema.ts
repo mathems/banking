@@ -55,7 +55,12 @@ export class ClientAccount {
     default: null,
     type: Number
   })
-  counter: number
+  counterForDeposit: number
+  @Prop({
+    default: null,
+    type: Number
+  })
+  counterForWithdraw: number
 }
 
 export const ClientAccountSchema = SchemaFactory.createForClass(ClientAccount);

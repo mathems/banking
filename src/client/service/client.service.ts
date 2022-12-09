@@ -5,6 +5,7 @@ import { ClientAccount, ClientAccountDocument } from '../shcema/сlientAccount.s
 import { ClientAccountDto } from '../dto/clientAccount';
 import { BalanceDto } from '../dto/balance.dto';
 import { DepositDto } from '../dto/deposit.dto';
+import { WithdrawDto } from '../dto/withdrow.dto';
 
 @Injectable()
 export class ClientService {
@@ -53,22 +54,31 @@ export class ClientService {
     }
     const firstTransactionTime = await currentClient.lastDepositAt;
 
-    const maxTransactions = await currentClient.counter
+    const maxTransactions = await currentClient.counterForDeposit
 
     if (!this.validateClientsTime(maxTransactions, firstTransactionTime)) {
       throw new RequestTimeoutException();
     }
     if (this.validateClientsTime(maxTransactions, firstTransactionTime) && (updatedBalance >= 500 && updatedBalance <= 50.000)) {
       await currentClient.updateOne({ lastDepositAt: new Date() })
-      await currentClient.updateOne({ balance: updatedBalance })
       await currentClient.updateOne({ counter: +1 })
+      await currentClient.updateOne({ balance: updatedBalance })
     }
     return await currentClient.balance
   };
 
-  async withdrawFromAccount(): Promise<number> {
-    return await
+  async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<number> {
+    const createdAccountNumber = withdrawDto.accountNumber
+    const currentClient = await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
+    const updatedBalance = currentClient.balance - withdrawDto.amount;
+    if (await currentClient.lastWithdrawAt === null) {
+      await currentClient.updateOne({ lastWithdrawAt: new Date() })
     }
+    const firstTransactionTime = await currentClient.lastDepositAt;
+
+    const maxTransactions = await currentClient.counterForWithdraw
+
+  }
 
   async limitOfTransactionsForLastDayIsExceeded(userId: number): Promise<boolean> {
 
