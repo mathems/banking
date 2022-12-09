@@ -6,6 +6,7 @@ import { ClientAccountDto } from '../dto/clientAccount';
 import { BalanceDto } from '../dto/balance.dto';
 import { DepositDto } from '../dto/deposit.dto';
 import { WithdrawDto } from '../dto/withdrow.dto';
+import { TransferDto } from '../dto/transfer.dto';
 
 @Injectable()
 export class ClientService {
@@ -46,44 +47,71 @@ export class ClientService {
   }
 
   async depositOnAccount(depositDto: DepositDto): Promise<number> {
-    const createdAccountNumber = depositDto.accountNumber
-    const currentClient = await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
-    const updatedBalance = currentClient.balance + depositDto.amount;
+    const identifyAccountNumber = depositDto.accountNumber
+    const currentClient = await this.clientAccountModel.findOne({ accountNumber: identifyAccountNumber });
+    const updatedBalance = currentClient.balance + depositDto.balance;
     if (await currentClient.lastDepositAt === null) {
       await currentClient.updateOne({ lastDepositAt: new Date() })
     }
     const firstTransactionTime = await currentClient.lastDepositAt;
 
-    const maxTransactions = await currentClient.counterForDeposit
+    const maxTransactions = await currentClient.counterForDeposit;
 
     if (!this.validateClientsTime(maxTransactions, firstTransactionTime)) {
       throw new RequestTimeoutException();
     }
     if (this.validateClientsTime(maxTransactions, firstTransactionTime) && (updatedBalance >= 500 && updatedBalance <= 50.000)) {
       await currentClient.updateOne({ lastDepositAt: new Date() })
-      await currentClient.updateOne({ counter: +1 })
+      await currentClient.updateOne({ counterForDeposit: +1 })
       await currentClient.updateOne({ balance: updatedBalance })
     }
     return await currentClient.balance
   };
 
   async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<number> {
-    const createdAccountNumber = withdrawDto.accountNumber
-    const currentClient = await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
+    const identifyAccountNumber = withdrawDto.accountNumber
+    const currentClient = await this.clientAccountModel.findOne({ accountNumber: identifyAccountNumber });
     const updatedBalance = currentClient.balance - withdrawDto.amount;
     if (await currentClient.lastWithdrawAt === null) {
       await currentClient.updateOne({ lastWithdrawAt: new Date() })
     }
-    const firstTransactionTime = await currentClient.lastDepositAt;
+    const firstTransactionTime = await currentClient.lastWithdrawAt;
 
-    const maxTransactions = await currentClient.counterForWithdraw
+    const maxTransactions = await currentClient.counterForWithdraw;
+    if (!this.validateClientsTime(maxTransactions, firstTransactionTime)) {
+      throw new RequestTimeoutException();
+    }
+    if (this.validateClientsTime(maxTransactions, firstTransactionTime) && (updatedBalance >= 1000 && updatedBalance <= 25.000)) {
+      await currentClient.updateOne({ lastWithdrawAt: new Date() })
+      await currentClient.updateOne({ counterForWithdraw: +1 })
+      await currentClient.updateOne({ balance: updatedBalance })
+    }
+    return await currentClient.balance
 
+  };
+
+  async transferToClient(transferDto: TransferDto): Promise<boolean> {
+    const identifyCurrentAccountNumber = transferDto.accountNumber
+    const identifyRecipientAccountNumber = transferDto.recipientAccountNumber
+    const currentClient = await this.clientAccountModel.findOne({ accountNumber: identifyCurrentAccountNumber });
+    const recipientClient = await this.clientAccountModel.findOne({ accountNumber: identifyRecipientAccountNumber });
+
+    const updatedBalance = currentClient.amountToTransfer + recipientClient.balance;
+    if (await currentClient.lastTransferAt === null) {
+      await currentClient.updateOne({ lastTransferAt: new Date() })
+    }
+    const firstTransactionTime = await currentClient.lastTransferAt;
+
+    const maxTransactions = await currentClient.counterForTransfer;
+    if (!this.validateClientsTime(maxTransactions, firstTransactionTime)) {
+      throw new RequestTimeoutException();
+    }
+    if (this.validateClientsTime(maxTransactions, firstTransactionTime) && (updatedBalance >= 1000 && updatedBalance <= 25.000)) {
+      await currentClient.updateOne({ lastTransferAt: new Date() })
+      await currentClient.updateOne({ counterForTransfer: +1 })
+      await recipientClient.updateOne({ balance: updatedBalance })
+      return true
+    }
+    return await false
   }
-
-  async limitOfTransactionsForLastDayIsExceeded(userId: number): Promise<boolean> {
-
-
-    return await
-      }
-
 }

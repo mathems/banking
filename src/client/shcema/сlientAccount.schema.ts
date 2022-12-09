@@ -26,6 +26,14 @@ export class ClientAccount {
   accountNumber: number;
 
   @Prop({
+    unique: true,
+    min: 1000,
+    max: 100000,
+    type: SchemaTypes.Number,
+  })
+  recipientAccountNumber: number;
+
+  @Prop({
     default: {
       min: 500,
       max: 100.000,
@@ -33,6 +41,15 @@ export class ClientAccount {
     }
   })
   balance: number
+
+  @Prop({
+    default: {
+      min: 500,
+      max: 100.000,
+      type: SchemaTypes.Number,
+    }
+  })
+  amountToTransfer: number
 
   @Prop({
     default: null,
@@ -51,6 +68,7 @@ export class ClientAccount {
     type: SchemaTypes.Date
   })
   lastTransferAt: Date
+
   @Prop({
     default: null,
     type: Number
@@ -61,6 +79,11 @@ export class ClientAccount {
     type: Number
   })
   counterForWithdraw: number
+  @Prop({
+    default: null,
+    type: Number
+  })
+  counterForTransfer: number
 }
 
 export const ClientAccountSchema = SchemaFactory.createForClass(ClientAccount);

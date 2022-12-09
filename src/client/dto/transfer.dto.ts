@@ -1,10 +1,14 @@
 import { IsNotEmpty } from "class-validator";
 
-export class transferDto {
+export class TransferDto {
   @IsNotEmpty()
   accountNumber: number;
   @IsNotEmpty()
   recipientAccountNumber: number;
   @IsNotEmpty()
-  amount: number;
+  balance: number;
+  @IsNotEmpty()
+  lastTransferAt: Date;
+  @IsNotEmpty()
+  counterForTransfer: number
 }

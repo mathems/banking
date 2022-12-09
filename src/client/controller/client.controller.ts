@@ -1,7 +1,9 @@
 import { BadRequestException, Body, Controller, NotAcceptableException, Post, Put, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
-import { BalanceDto, BalanceDto } from '../dto/balance.dto';
+import { BalanceDto } from '../dto/balance.dto';
 import { ClientAccountDto } from '../dto/clientAccount';
 import { DepositDto } from '../dto/deposit.dto';
+import { TransferDto } from '../dto/transfer.dto';
+import { WithdrawDto } from '../dto/withdrow.dto';
 import { ClientService } from '../service/client.service';
 
 @Controller('client')
@@ -35,11 +37,8 @@ export class ClientController {
     if (!depositDto.accountNumber) {
       throw new UnauthorizedException();
     }
-    if (!depositDto.amount) {
+    if (!depositDto.balance) {
       throw new NotAcceptableException();
-    }
-    if (await this.clientService.limitOfTransactionsForLastDayIsExceeded(depositDto.accountNumber)) {
-      throw new RequestTimeoutException();
     }
     const postBalance = await this.clientService.depositOnAccount(depositDto)
     return `Your balance post deposit: ${postBalance}`
@@ -53,10 +52,7 @@ export class ClientController {
     if (!withdrawDto.amount) {
       throw new NotAcceptableException();
     }
-    if (await this.clientService.limitOfTransactionsForLastDayIsExceeded(withdrawDto.accountNumber)) {
-      throw new RequestTimeoutException();
-    }
-    const postBalance = await this.clientService.withdrawFromAccount(createAccountDto);
+    const postBalance = await this.clientService.withdrawFromAccount(withdrawDto);
     return `Your balance post withdrawal: ${postBalance}`
   }
 
@@ -65,12 +61,12 @@ export class ClientController {
     if (!transferDto.accountNumber || !transferDto.recipientAccountNumber) {
       throw new UnauthorizedException();
     }
-    if (!transferDto.amount) {
+    if (!transferDto.balance) {
       throw new NotAcceptableException();
     }
-    if (await this.clientService.limitOfTransactionsForLastDayIsExceeded(transferDto.accountNumber)) {
-      throw new RequestTimeoutException();
+    if (await this.clientService.transferToClient(transferDto)) {
+      return `Funds in the amount ${transferDto.balance}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`
     }
-    return `Funds in the amount ${transferDto.amount}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`
+    throw new BadRequestException();
   }
 }

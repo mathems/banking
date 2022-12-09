@@ -4,5 +4,5 @@ export class DepositDto {
   @IsNotEmpty()
   accountNumber: number;
   @IsNotEmpty()
-  amount: number;
+  balance: number;
 }
