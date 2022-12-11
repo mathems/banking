@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, RequestTimeoutException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotAcceptableException, RequestTimeoutException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientAccount, ClientAccountDocument } from '../shcemas/сlientAccount.schema';
@@ -43,19 +43,21 @@ export class ClientService {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: depositDto.accountNumber });
     const newBalance = currentClient.balance + depositDto.amount;
 
-    if ((depositDto.amount >= 500 && depositDto.amount <= 50000) && (newBalance >= 0 && newBalance <= 100000)) {
-      await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransaction: 1 } }, { new: true }).exec();
-      console.log(currentClient.counterForTransaction)
-    } else {
-      throw new BadRequestException()
+    if (!(depositDto.amount >= 500 && depositDto.amount <= 50000)) {
+      throw new NotAcceptableException()
     }
-    if (currentClient.counterForTransaction <= 3) {
-      console.log(currentClient.counterForTransaction)
-      const updatedBalance = await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { balance: newBalance } }, { new: true });
-      return await updatedBalance.balance
+    if (!(newBalance >= 0 && newBalance <= 100000)) {
+      throw new NotAcceptableException()
     }
-    return await "Try your transaction after 24hours"
-  };
+    if (!(currentClient.counterForTransaction <= 2)) {
+      throw new RequestTimeoutException()
+    }
+    await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransaction: 1 } }, { new: true }).exec();
+    const updatedBalance = await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { balance: newBalance } }, { new: true });
+    console.log(currentClient.counterForTransaction)
+    return await updatedBalance.balance
+  }
+};
 
   // async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<number> {
   //   const identifyAccountNumber = withdrawDto.accountNumber
@@ -103,4 +105,3 @@ export class ClientService {
   //   }
   //   return await false
   // }
-}
