@@ -36,36 +36,36 @@ export class ClientController {
     if (!depositDto.accountNumber) {
       throw new UnauthorizedException();
     }
-    if (!depositDto.balance) {
+    if (!depositDto.amount) {
       throw new NotAcceptableException();
     }
     const postBalance = await this.clientService.depositOnAccount(depositDto)
     return `Your balance post deposit: ${postBalance}`
   }
 
-  @Put('/withdraw')
-  async withdraw(@Body() withdrawDto: WithdrawDto): Promise<string> {
-    if (!withdrawDto.accountNumber) {
-      throw new UnauthorizedException();
-    }
-    if (!withdrawDto.amount) {
-      throw new NotAcceptableException();
-    }
-    const postBalance = await this.clientService.withdrawFromAccount(withdrawDto);
-    return `Your balance post withdrawal: ${postBalance}`
-  }
+  // @Put('/withdraw')
+  // async withdraw(@Body() withdrawDto: WithdrawDto): Promise<string> {
+  //   if (!withdrawDto.accountNumber) {
+  //     throw new UnauthorizedException();
+  //   }
+  //   if (!withdrawDto.amount) {
+  //     throw new NotAcceptableException();
+  //   }
+  //   const postBalance = await this.clientService.withdrawFromAccount(withdrawDto);
+  //   return `Your balance post withdrawal: ${postBalance}`
+  // }
 
-  @Put('/transfer')
-  async transfer(@Body() transferDto: TransferDto): Promise<string> {
-    if (!transferDto.accountNumber || !transferDto.recipientAccountNumber) {
-      throw new UnauthorizedException();
-    }
-    if (!transferDto.balance) {
-      throw new NotAcceptableException();
-    }
-    if (await this.clientService.transferToClient(transferDto)) {
-      return `Funds in the amount ${transferDto.balance}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`
-    }
-    throw new BadRequestException();
-  }
+  // @Put('/transfer')
+  // async transfer(@Body() transferDto: TransferDto): Promise<string> {
+  //   if (!transferDto.accountNumber || !transferDto.recipientAccountNumber) {
+  //     throw new UnauthorizedException();
+  //   }
+  //   if (!transferDto.balance) {
+  //     throw new NotAcceptableException();
+  //   }
+  //   if (await this.clientService.transferToClient(transferDto)) {
+  //     return `Funds in the amount ${transferDto.balance}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`
+  //   }
+  //   throw new BadRequestException();
+  // }
 }

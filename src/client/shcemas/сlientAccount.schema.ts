@@ -39,40 +39,12 @@ export class ClientAccount {
     type: SchemaTypes.Number,
   })
   amountToTransfer: number
-
   @Prop({
     expires: 60 * 60 * 24 * 1000,
-    type: SchemaTypes.Date
-  })
-  lastWithdrawAt: Date
-
-  @Prop({
-    expires: 60 * 60 * 24 * 1000,
-    type: SchemaTypes.Date
-  })
-  lastDepositAt: Date
-
-  @Prop({
-    expires: 60 * 60 * 24 * 1000,
-    type: SchemaTypes.Date
-  })
-  lastTransferAt: Date
-
-  @Prop({
-    default: null,
+    default: 0,
     type: Number
   })
-  counterForDeposit: number
-  @Prop({
-    default: null,
-    type: Number
-  })
-  counterForWithdraw: number
-  @Prop({
-    default: null,
-    type: Number
-  })
-  counterForTransfer: number
+  counterForTransaction: number
 }
 
 export const ClientAccountSchema = SchemaFactory.createForClass(ClientAccount);

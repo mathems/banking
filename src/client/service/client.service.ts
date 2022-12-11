@@ -1,4 +1,4 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { BadRequestException, Injectable, RequestTimeoutException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientAccount, ClientAccountDocument } from '../shcemas/сlientAccount.schema';
@@ -38,36 +38,23 @@ export class ClientService {
   }
 
 
-  async isTimeTransactionValid(counter: number, firstTransactionTime: Date): Promise<boolean> {
 
-    const limitTransaction = new Date(new Date(firstTransactionTime).getTime() + 60 * 60 * 24 * 1000);
-    if (counter >= 3 && limitTransaction.toISOString() > new Date().toISOString()) {
-      return false
-    }
-    if (counter >= 3 && limitTransaction.toISOString() < new Date().toISOString()) {
-      return true
-    }
-  }
-
-  async validateDepositBalance(balance: number): Promise<boolean> {
-    if (balance >= 500 && balance <= 50.000) {
-      return true
-    }
-    if (balance < 500 || balance > 50.000) {
-      return false
-    }
-  }
-
-  async depositOnAccount(depositDto: DepositDto): Promise<number> {
+  async depositOnAccount(depositDto: DepositDto): Promise<number | string> {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: depositDto.accountNumber });
-    const newBalance = currentClient.balance + depositDto.balance;
+    const newBalance = currentClient.balance + depositDto.amount;
 
-    if (this.isTimeTransactionValid(currentClient.counterForDeposit, currentClient.lastDepositAt) && this.validateDepositBalance(currentClient.balance)) {
+    if ((depositDto.amount >= 500 && depositDto.amount <= 50.000) && (newBalance >= 0 && newBalance <= 100.000)) {
+      await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransaction: 1 } }, { new: true }).exec();
+      console.log(currentClient.counterForTransaction)
+    } else {
+      throw new BadRequestException()
+    }
+    if (currentClient.counterForTransaction <= 3) {
+      console.log(currentClient.counterForTransaction)
       const updatedBalance = await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { balance: newBalance } }, { new: true });
-      await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { counterForDeposit: +1 } }, { new: true });
-      await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { lastDepositAt: new Date() } }, { new: true });
       return await updatedBalance.balance
     }
+    return await "Try your transaction after 24hours"
   };
 
   // async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<number> {
