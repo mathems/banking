@@ -5,4 +5,6 @@ export class DepositDto {
   accountNumber: number;
   @IsNotEmpty()
   balance: number;
+  counterForDeposit: number;
+  lastDepositAt: Date;
 }

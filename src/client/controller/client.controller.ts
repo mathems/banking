@@ -30,6 +30,7 @@ export class ClientController {
     return `Your current balance is: ${currentBalance}`
   }
 
+
   @Put('/deposit')
   async deposit(@Body() depositDto: DepositDto): Promise<string> {
     if (!depositDto.accountNumber) {

@@ -18,6 +18,7 @@ export class ClientAccount {
   surname: string;
 
   @Prop({
+    unique: true,
     type: SchemaTypes.Number,
   })
   accountNumber: number;
@@ -28,7 +29,7 @@ export class ClientAccount {
   recipientAccountNumber: number;
 
   @Prop({
-    default: 0,
+    default: 40000,
     type: SchemaTypes.Number,
   })
   balance: number
