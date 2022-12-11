@@ -5,8 +5,6 @@ import { ClientAccount, ClientAccountDocument } from '../shcemas/сlientAccount.
 import { ClientAccountDto } from '../dto/clientAccount';
 import { BalanceDto } from '../dto/balance.dto';
 import { DepositDto } from '../dto/deposit.dto';
-import { WithdrawDto } from '../dto/withdrow.dto';
-import { TransferDto } from '../dto/transfer.dto';
 var rn = require('random-number');
 
 @Injectable()
