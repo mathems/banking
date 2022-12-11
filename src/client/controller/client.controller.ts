@@ -18,7 +18,7 @@ export class ClientController {
       throw BadRequestException
     }
     const accountNumber = await this.clientService.createAccount(clientAccountDto)
-    return `Your new Bank Account Number is: ${accountNumber}`
+    return `Your new Bank Account Number is: ${accountNumber.accountNumber}`
   }
 
   @Post('/balance')

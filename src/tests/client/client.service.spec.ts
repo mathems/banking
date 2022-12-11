@@ -57,9 +57,9 @@ describe('ClientService', () => {
     expect(service).toBeDefined()
   })
 
-  it('createAccount() - should accept ', async () => {
+  it('createAccount() - should call .create()', async () => {
     const depositDto = plainToInstance(ClientAccountDto, clientAccountDtoMock);
-    const action = await service.createAccount(depositDto)
-    expect(s).toHaveBeenCalledWith({"",""})
+    await service.createAccount(depositDto)
+    expect(clientAccountModel.create).toHaveBeenCalledTimes(1);
   })
 })

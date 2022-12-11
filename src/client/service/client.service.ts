@@ -14,19 +14,17 @@ export class ClientService {
   constructor(
     @InjectModel(ClientAccount.name) private clientAccountModel: Model<ClientAccountDocument>) { }
 
-  async createAccount(clientAccountDto: ClientAccountDto): Promise<number> {
+  async createAccount(clientAccountDto: ClientAccountDto): Promise<ClientAccountDocument> {
     const options = {
       min: 1000
       , max: 100000
       , integer: true
     }
-    const client = await this.clientAccountModel.create({
+    return await await this.clientAccountModel.create({
       name: clientAccountDto.name,
       surname: clientAccountDto.surname,
       accountNumber: rn(options),
     });
-    await client.save();
-    return await client.accountNumber
   };
 
   async showCurrentBalance(balanceDto: BalanceDto): Promise<number> {
