@@ -5,13 +5,4 @@ export class ClientAccountDto {
   name: string;
   @IsNotEmpty()
   surname: string;
-  accountNumber: number;
-  @IsOptional()
-  balance: number
-  @IsOptional()
-  lastWithdrawAt: Date
-  @IsOptional()
-  lastDepositAt: Date
-  @IsOptional()
-  lastTransferAt: Date
 }

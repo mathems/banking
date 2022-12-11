@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getModelToken } from '@nestjs/mongoose'
 import { ClientService } from '../../client/service/client.service';
 import { ClientController } from '../../client/controller/client.controller';
+import { plainToInstance } from 'class-transformer';
+import { ClientAccountDto } from '../../client/dto/clientAccount';
+import { clientAccountDtoMock } from './mock/clientAccount.dto.mock';
 
 
 
@@ -22,6 +25,7 @@ function mockModel() {
   mock.findOneAndUpdate = jest.fn()
   mock.paginate = jest.fn()
   mock.delete = jest.fn()
+  mock.create = jest.fn()
   return mock
 }
 
@@ -51,5 +55,11 @@ describe('ClientService', () => {
 
   it('ClientService - should be defined', () => {
     expect(service).toBeDefined()
+  })
+
+  it('createAccount() - should accept ', async () => {
+    const depositDto = plainToInstance(ClientAccountDto, clientAccountDtoMock);
+    const action = await service.createAccount(depositDto)
+    expect(s).toHaveBeenCalledWith({"",""})
   })
 })

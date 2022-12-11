@@ -6,9 +6,5 @@ export class TransferDto {
   @IsNotEmpty()
   recipientAccountNumber: number;
   @IsNotEmpty()
-  balance: number;
-  @IsNotEmpty()
-  lastTransferAt: Date;
-  @IsNotEmpty()
-  counterForTransfer: number
+  amountToTransfer: number;
 }
