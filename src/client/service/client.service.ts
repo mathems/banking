@@ -43,7 +43,7 @@ export class ClientService {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: depositDto.accountNumber });
     const newBalance = currentClient.balance + depositDto.amount;
 
-    if ((depositDto.amount >= 500 && depositDto.amount <= 50.000) && (newBalance >= 0 && newBalance <= 100.000)) {
+    if ((depositDto.amount >= 500 && depositDto.amount <= 50000) && (newBalance >= 0 && newBalance <= 100000)) {
       await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransaction: 1 } }, { new: true }).exec();
       console.log(currentClient.counterForTransaction)
     } else {
