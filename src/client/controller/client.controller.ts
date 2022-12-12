@@ -23,9 +23,6 @@ export class ClientController {
 
   @Post('/balance')
   async balance(@Body() balanceDto: BalanceDto): Promise<any> {
-    if (!balanceDto.accountNumber) {
-      throw UnauthorizedException
-    }
     const currentBalance = await this.clientService.showCurrentBalance(balanceDto)
     return {
       message: `Your current balance is: ${currentBalance.balance}`,
@@ -36,36 +33,18 @@ export class ClientController {
 
   @Post('/deposit')
   async deposit(@Body() depositDto: DepositDto): Promise<string> {
-    if (!depositDto.accountNumber) {
-      throw new UnauthorizedException();
-    }
-    if (!depositDto.amount) {
-      throw new NotAcceptableException();
-    }
     const postBalance = await this.clientService.depositOnAccount(depositDto)
     return `Your balance post deposit: ${postBalance}`
   }
 
   @Post('/withdraw')
   async withdraw(@Body() withdrawDto: WithdrawDto): Promise<string> {
-    if (!withdrawDto.accountNumber) {
-      throw new UnauthorizedException();
-    }
-    if (!withdrawDto.amount) {
-      throw new NotAcceptableException();
-    }
     const postBalance = await this.clientService.withdrawFromAccount(withdrawDto);
     return `Your balance post withdrawal: ${postBalance}`
   }
 
   @Post('/transfer')
   async transfer(@Body() transferDto: TransferDto): Promise<string> {
-    if (!transferDto.accountNumber || !transferDto.recipientAccountNumber) {
-      throw new UnauthorizedException();
-    }
-    if (!transferDto.amountToTransfer) {
-      throw new NotAcceptableException();
-    }
     if (await this.clientService.transferToClient(transferDto)) {
       return `Funds in the amount ${transferDto.amountToTransfer}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`
     }
