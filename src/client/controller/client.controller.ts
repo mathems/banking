@@ -34,7 +34,7 @@ export class ClientController {
   }
 
 
-  @Put('/deposit')
+  @Post('/deposit')
   async deposit(@Body() depositDto: DepositDto): Promise<string> {
     if (!depositDto.accountNumber) {
       throw new UnauthorizedException();
@@ -46,7 +46,7 @@ export class ClientController {
     return `Your balance post deposit: ${postBalance}`
   }
 
-  @Put('/withdraw')
+  @Post('/withdraw')
   async withdraw(@Body() withdrawDto: WithdrawDto): Promise<string> {
     if (!withdrawDto.accountNumber) {
       throw new UnauthorizedException();
@@ -58,7 +58,7 @@ export class ClientController {
     return `Your balance post withdrawal: ${postBalance}`
   }
 
-  @Put('/transfer')
+  @Post('/transfer')
   async transfer(@Body() transferDto: TransferDto): Promise<string> {
     if (!transferDto.accountNumber || !transferDto.recipientAccountNumber) {
       throw new UnauthorizedException();
