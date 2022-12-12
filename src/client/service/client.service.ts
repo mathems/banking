@@ -7,7 +7,7 @@ import { BalanceDto } from '../dto/balance.dto';
 import { DepositDto } from '../dto/deposit.dto';
 import { WithdrawDto } from '../dto/withdraw.dto';
 import { TransferDto } from '../dto/transfer.dto';
-var rn = require('random-number');
+import { MATH_RANDOM, MAX_BALANCE, MAX_DEPOSIT, MAX_TRANSACTION, MAX_TRANSFER, MAX_WITHDRAW, MIN_BALANCE, MIN_DEPOSIT, MIN_TRANSFER, MIN_WITHDRAW } from '../bankConnsts/bank.const';
 
 @Injectable()
 export class ClientService {
@@ -15,61 +15,49 @@ export class ClientService {
     @InjectModel(ClientAccount.name) private clientAccountModel: Model<ClientAccountDocument>) { }
 
   async createAccount(clientAccountDto: ClientAccountDto): Promise<ClientAccountDocument> {
-    const options = {
-      min: 1000
-      , max: 100000
-      , integer: true
-    }
-    return await await this.clientAccountModel.create({
+    return await this.clientAccountModel.create({
       name: clientAccountDto.name,
       surname: clientAccountDto.surname,
-      accountNumber: rn(options),
+      accountNumber: Math.floor(Math.random() * MATH_RANDOM),
     });
   };
 
-  async showCurrentBalance(balanceDto: BalanceDto): Promise<number> {
-    const createdAccountNumber = balanceDto.accountNumber
-    const currentClient = await this.clientAccountModel.findOne({ accountNumber: createdAccountNumber });
-    const currentBalance = await this.clientAccountModel.findOne({ balance: currentClient.balance });
-    return await currentBalance.balance
+  async showCurrentBalance(balanceDto: BalanceDto): Promise<ClientAccountDocument> {
+    return await this.clientAccountModel.findOne({ accountNumber: balanceDto.accountNumber });
   }
 
 
 
-  async depositOnAccount(depositDto: DepositDto): Promise<number | string> {
+  async depositOnAccount(depositDto: DepositDto): Promise<ClientAccountDocument> {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: depositDto.accountNumber });
     const newBalance = currentClient.balance + depositDto.amount;
 
-    if (!(depositDto.amount >= 500 && depositDto.amount <= 50000)) {
-      throw new NotAcceptableException()
+    if (!(depositDto.amount >= MIN_DEPOSIT && depositDto.amount <= MAX_DEPOSIT)) {
+      throw new BadRequestException()
     }
-    if (!(newBalance >= 0 && newBalance <= 100000)) {
-      throw new NotAcceptableException()
+    if (!(newBalance >= MIN_BALANCE && newBalance <= MAX_BALANCE)) {
+      throw new BadRequestException()
     }
-    if (!(currentClient.counterForDeposit <= 2)) {
-      throw new RequestTimeoutException()
+    if (!(currentClient.counterForDeposit <= MAX_TRANSACTION)) {
+      throw new BadRequestException()
     }
-    await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForDeposit: 1 } }, { new: true }).exec();
-    const updatedBalance = await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { balance: newBalance } }, { new: true });
-    return await updatedBalance.balance
+    return await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForDeposit: 1 }, $set: { balance: newBalance } }, { new: true }).exec();
   }
 
-  async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<number | string> {
+  async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<ClientAccountDocument> {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: withdrawDto.accountNumber });
     const newBalance = currentClient.balance - withdrawDto.amount;
 
-    if (!(withdrawDto.amount >= 1000 && withdrawDto.amount <= 25000)) {
-      throw new NotAcceptableException()
+    if (!(withdrawDto.amount >= MIN_WITHDRAW && withdrawDto.amount <= MAX_WITHDRAW)) {
+      throw new BadRequestException()
     }
-    if (!(newBalance >= 0 && newBalance <= 100000)) {
-      throw new NotAcceptableException()
+    if (!(newBalance >= MIN_BALANCE && newBalance <= MAX_BALANCE)) {
+      throw new BadRequestException()
     }
-    if (!(currentClient.counterForWithdraw <= 2)) {
-      throw new RequestTimeoutException()
+    if (!(currentClient.counterForWithdraw <= MAX_TRANSACTION)) {
+      throw new BadRequestException()
     }
-    await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForWithdraw: 1 } }, { new: true }).exec();
-    const updatedBalance = await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { balance: newBalance } }, { new: true });
-    return await updatedBalance.balance
+    return await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForWithdraw: 1 }, $set: { balance: newBalance } }, { new: true }).exec();
   }
 
 
@@ -81,18 +69,18 @@ export class ClientService {
     const postBalance = currentClient.balance - transferDto.amountToTransfer;
 
 
-    if (!(transferDto.amountToTransfer >= 1000 && transferDto.amountToTransfer <= 25000)) {
-      throw new NotAcceptableException()
+    if (!(transferDto.amountToTransfer >= MIN_TRANSFER && transferDto.amountToTransfer <= MAX_TRANSFER)) {
+      throw new BadRequestException()
     }
-    if (!(newBalance >= 0 && newBalance <= 100000)) {
-      throw new NotAcceptableException()
+    if (!(newBalance >= MIN_BALANCE && newBalance <= MAX_BALANCE)) {
+      throw new BadRequestException()
     }
-    if (!(currentClient.counterForTransfer <= 2)) {
-      throw new RequestTimeoutException()
+    if (!(currentClient.counterForTransfer <= MAX_TRANSACTION)) {
+      throw new BadRequestException()
     }
-    await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransfer: 1 } }, { new: true }).exec();
-    await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $set: { balance: postBalance } }, { new: true });
-    await this.clientAccountModel.findOneAndUpdate({ _id: recipientClient._id }, { $set: { balance: newBalance } }, { new: true });
+    Promise.all(
+      [this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransfer: 1 }, $set: { balance: postBalance } }, { new: true }),
+      this.clientAccountModel.findOneAndUpdate({ _id: recipientClient._id }, { $set: { balance: newBalance } }, { new: true })])
     return true
   }
 };

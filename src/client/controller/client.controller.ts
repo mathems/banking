@@ -13,21 +13,24 @@ export class ClientController {
   ) { }
 
   @Post('/create')
-  async createNewClient(@Body() clientAccountDto: ClientAccountDto): Promise<string> {
-    if (!clientAccountDto.name || !clientAccountDto.surname) {
-      throw BadRequestException
-    }
+  async createNewClient(@Body() clientAccountDto: ClientAccountDto): Promise<any> {
     const accountNumber = await this.clientService.createAccount(clientAccountDto)
-    return `Your new Bank Account Number is: ${accountNumber.accountNumber}`
+    return {
+      message: `Your new Bank Account Number is: ${accountNumber.accountNumber}`,
+      accountNumber: accountNumber.accountNumber
+    }
   }
 
   @Post('/balance')
-  async balance(@Body() balanceDto: BalanceDto): Promise<string> {
+  async balance(@Body() balanceDto: BalanceDto): Promise<any> {
     if (!balanceDto.accountNumber) {
       throw UnauthorizedException
     }
     const currentBalance = await this.clientService.showCurrentBalance(balanceDto)
-    return `Your current balance is: ${currentBalance}`
+    return {
+      message: `Your current balance is: ${currentBalance.balance}`,
+      balance: currentBalance.balance
+    }
   }
 
 

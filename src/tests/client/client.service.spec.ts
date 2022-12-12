@@ -5,6 +5,11 @@ import { ClientController } from '../../client/controller/client.controller';
 import { plainToInstance } from 'class-transformer';
 import { ClientAccountDto } from '../../client/dto/clientAccount';
 import { clientAccountDtoMock } from './mock/clientAccount.dto.mock';
+import { BalanceDto } from '../../client/dto/balance.dto';
+import { balanceDtoMock } from './mock/balance.dto.mock';
+import { DepositDto } from '../../client/dto/deposit.dto';
+import { depositDtoMock } from './mock/deposit.dto.mock';
+import { NotAcceptableException } from '@nestjs/common';
 
 
 
@@ -20,7 +25,7 @@ function mockModel() {
   })) as any
   mock.find = jest.fn()
   mock.findById = jest.fn()
-  mock.findOne = jest.fn()
+  // mock.findOne = jest.fn(() => ({ balance: 200000 }))
   mock.save = jest.fn()
   mock.findOneAndUpdate = jest.fn()
   mock.paginate = jest.fn()
@@ -62,4 +67,31 @@ describe('ClientService', () => {
     await service.createAccount(depositDto)
     expect(clientAccountModel.create).toHaveBeenCalledTimes(1);
   })
+
+  it('showCurrentBalance() - should call .findOne()', async () => {
+    const balanceDto = plainToInstance(BalanceDto, balanceDtoMock);
+    await service.showCurrentBalance(balanceDto)
+    expect(clientAccountModel.findOne).toHaveBeenCalledTimes(1);
+  })
+
+  it.only('depositOnAccount() - should throw NotAcceptableException if unacceptable amount', async () => {
+    const depositDto = plainToInstance(DepositDto, depositDtoMock);
+    // clientAccountModel.findOneAndUpdate = jest.fn(async (depositDto): Promise<any> => {
+    //   return null
+    // })
+    // clientAccountModel.findOne = jest.fn(() => ({ balance: 200000 }))
+    try {
+      await service.depositOnAccount(depositDto)
+      expect(true).toBe(false)
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotAcceptableException)
+    }
+    // .rejects.toBeInstanceOf(NotAcceptableException)
+  })
+
+  // it('depositOnAccount() - should throw NotAcceptableException if unacceptable balance', async () => {
+  //   const depositDto = plainToInstance(DepositDto, depositDtoMock);
+  //   await service.showCurrentBalance(depositDto)
+  //   expect(clientAccountModel.findOne).toHaveBeenCalledTimes(1);
+  // })
 })
