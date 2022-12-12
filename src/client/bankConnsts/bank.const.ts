@@ -8,6 +8,9 @@ export const MIN_WITHDRAW = 1000;
 export const MIN_DEPOSIT = 500;
 export const MAX_DEPOSIT = 50_000;
 export const MATH_RANDOM = 100_000;
+export const MIN_ACCOUNNUMBER = 0;
+
+
 
 
 
