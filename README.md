@@ -38,5 +38,5 @@ $ npm run test
 
 ## Stay in touch
 
-- Author - (https://kamilmysliwiec.com)
+- Author - ([(https://www.linkedin.com/in/mattmoiseienko/)])
 
