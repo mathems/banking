@@ -10,6 +10,11 @@ import { balanceDtoMock } from './mock/balance.dto.mock';
 import { DepositDto } from '../../client/dto/deposit.dto';
 import { depositDtoMock } from './mock/deposit.dto.mock';
 import { BadRequestException, NotAcceptableException } from '@nestjs/common';
+import { MAX_BALANCE, MIN_BALANCE, MIN_DEPOSIT, MIN_WITHDRAW } from '../../client/bankConnsts/bank.const';
+import { WithdrawDto } from '../../client/dto/withdraw.dto';
+import { withdrawDtoMock } from './mock/withdraw.dto.mock';
+import { TransferDto } from '../../client/dto/transfer.dto';
+import { transferDtoMock } from './mock/transfer.dto.mock';
 
 
 
@@ -76,7 +81,7 @@ describe('ClientService', () => {
 
   it('depositOnAccount() - should throw BadRequestException if unacceptable amount', async () => {
     const depositDto = plainToInstance(DepositDto, depositDtoMock);
-    clientAccountModel.findOne = jest.fn(() => ({ balance: 51_000 }))
+    clientAccountModel.findOne = jest.fn(() => ({ balance: MIN_DEPOSIT }))
     try {
       await service.depositOnAccount(depositDto)
       expect(true).toBe(false)
@@ -85,14 +90,40 @@ describe('ClientService', () => {
     }
   })
 
-  it('depositOnAccount() - should throw BadRequestException if unacceptable amount', async () => {
+  it('depositOnAccount() - should should call .findOneAndUpdate()', async () => {
     const depositDto = plainToInstance(DepositDto, depositDtoMock);
-    clientAccountModel.findOne = jest.fn(() => ({ balance: 51_000 }))
+    clientAccountModel.findOne = jest.fn(() => ({ balance: MIN_DEPOSIT, counterForDeposit: 1 }))
+    await service.depositOnAccount(depositDto)
+    expect(clientAccountModel.findOneAndUpdate).toHaveBeenCalledTimes(1);
+  })
+
+  it('withdrawFromAccount() - should throw BadRequestException if unacceptable transaction', async () => {
+    const withdrawDto = plainToInstance(WithdrawDto, withdrawDtoMock);
+    clientAccountModel.findOne = jest.fn(() => ({ balance: MIN_WITHDRAW, counterForWithdraw: 4 }))
     try {
-      await service.depositOnAccount(depositDto)
+      await service.withdrawFromAccount(withdrawDto)
       expect(true).toBe(false)
     } catch (error) {
       expect(error).toBeInstanceOf(BadRequestException)
     }
   })
+
+  it('withdrawFromAccount() - should call .findOneAndUpdate()', async () => {
+    const withdrawDto = plainToInstance(WithdrawDto, withdrawDtoMock);
+    clientAccountModel.findOne = jest.fn(() => ({ balance: MIN_WITHDRAW, counterForDeposit: 1 }))
+    await service.depositOnAccount(withdrawDto)
+    expect(clientAccountModel.findOneAndUpdate).toHaveBeenCalledTimes(1);
+  })
+
+  it('transferToClient() - should call .findOneAndUpdate()', async () => {
+    const transferDto = plainToInstance(TransferDto, transferDtoMock);
+    clientAccountModel.findOne = jest.fn(() => ({ balance: MIN_WITHDRAW, counterForWithdraw: 4 }))
+    try {
+      await service.transferToClient(transferDto)
+      expect(true).toBe(false)
+    } catch (error) {
+      expect(error).toBeInstanceOf(BadRequestException)
+    }
+  })
+
 })

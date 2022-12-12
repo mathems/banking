@@ -31,26 +31,19 @@ export class ClientService {
   async depositOnAccount(depositDto: DepositDto): Promise<ClientAccountDocument> {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: depositDto.accountNumber });
     const newBalance = currentClient.balance + depositDto.amount;
-
-    if (!(depositDto.amount >= MIN_DEPOSIT && depositDto.amount <= MAX_DEPOSIT)) {
-      throw new BadRequestException()
-    }
     if (!(newBalance >= MIN_BALANCE && newBalance <= MAX_BALANCE)) {
       throw new BadRequestException()
     }
     if (!(currentClient.counterForDeposit <= MAX_TRANSACTION)) {
       throw new BadRequestException()
     }
-    return await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForDeposit: 1 }, $set: { balance: newBalance } }, { new: true }).exec();
+    return await this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForDeposit: 1 }, $set: { balance: newBalance } }, { new: true });
   }
 
   async withdrawFromAccount(withdrawDto: WithdrawDto): Promise<ClientAccountDocument> {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: withdrawDto.accountNumber });
     const newBalance = currentClient.balance - withdrawDto.amount;
 
-    if (!(withdrawDto.amount >= MIN_WITHDRAW && withdrawDto.amount <= MAX_WITHDRAW)) {
-      throw new BadRequestException()
-    }
     if (!(newBalance >= MIN_BALANCE && newBalance <= MAX_BALANCE)) {
       throw new BadRequestException()
     }
@@ -61,17 +54,13 @@ export class ClientService {
   }
 
 
-  async transferToClient(transferDto: TransferDto): Promise<boolean> {
+  async transferToClient(transferDto: TransferDto): Promise<ClientAccountDocument> {
     const currentClient = await this.clientAccountModel.findOne({ accountNumber: transferDto.accountNumber });
     const recipientClient = await this.clientAccountModel.findOne({ accountNumber: transferDto.recipientAccountNumber });
 
     const newBalance = transferDto.amountToTransfer + recipientClient.balance;
     const postBalance = currentClient.balance - transferDto.amountToTransfer;
-
-
-    if (!(transferDto.amountToTransfer >= MIN_TRANSFER && transferDto.amountToTransfer <= MAX_TRANSFER)) {
-      throw new BadRequestException()
-    }
+    
     if (!(newBalance >= MIN_BALANCE && newBalance <= MAX_BALANCE)) {
       throw new BadRequestException()
     }
@@ -81,6 +70,6 @@ export class ClientService {
     Promise.all(
       [this.clientAccountModel.findOneAndUpdate({ _id: currentClient._id }, { $inc: { counterForTransfer: 1 }, $set: { balance: postBalance } }, { new: true }),
       this.clientAccountModel.findOneAndUpdate({ _id: recipientClient._id }, { $set: { balance: newBalance } }, { new: true })])
-    return true
+    return currentClient
   }
 };

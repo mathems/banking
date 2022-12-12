@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, NotAcceptableException, Post, Put, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, NotAcceptableException, Post, Put, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
 import { BalanceDto } from '../dto/balance.dto';
 import { ClientAccountDto } from '../dto/clientAccount';
 import { DepositDto } from '../dto/deposit.dto';
@@ -13,7 +13,7 @@ export class ClientController {
   ) { }
 
   @Post('/create')
-  async createNewClient(@Body() clientAccountDto: ClientAccountDto): Promise<any> {
+  async createNewClient(@Body() clientAccountDto: ClientAccountDto): Promise<object> {
     const accountNumber = await this.clientService.createAccount(clientAccountDto)
     return {
       message: `Your new Bank Account Number is: ${accountNumber.accountNumber}`,
@@ -22,9 +22,10 @@ export class ClientController {
   }
 
   @Post('/balance')
-  async balance(@Body() balanceDto: BalanceDto): Promise<any> {
+  async balance(@Body() balanceDto: BalanceDto): Promise<object> {
     const currentBalance = await this.clientService.showCurrentBalance(balanceDto)
     return {
+      object: currentBalance,
       message: `Your current balance is: ${currentBalance.balance}`,
       balance: currentBalance.balance
     }
@@ -32,22 +33,33 @@ export class ClientController {
 
 
   @Post('/deposit')
-  async deposit(@Body() depositDto: DepositDto): Promise<string> {
+  async deposit(@Body() depositDto: DepositDto): Promise<object> {
     const postBalance = await this.clientService.depositOnAccount(depositDto)
-    return `Your balance post deposit: ${postBalance}`
+    return {
+      object: postBalance,
+      message: `Your balance post deposit: ${postBalance.balance}`,
+      postBalance: postBalance.balance
+    }
   }
 
   @Post('/withdraw')
-  async withdraw(@Body() withdrawDto: WithdrawDto): Promise<string> {
+  async withdraw(@Body() withdrawDto: WithdrawDto): Promise<object> {
     const postBalance = await this.clientService.withdrawFromAccount(withdrawDto);
-    return `Your balance post withdrawal: ${postBalance}`
+    return {
+      object: postBalance,
+      message: `Your balance post withdrawal: ${postBalance.balance}`,
+      postBalance: postBalance.balance
+    }
   }
 
   @Post('/transfer')
-  async transfer(@Body() transferDto: TransferDto): Promise<string> {
-    if (await this.clientService.transferToClient(transferDto)) {
-      return `Funds in the amount ${transferDto.amountToTransfer}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`
+  async transfer(@Body() transferDto: TransferDto): Promise<object> {
+    const transfer = await this.clientService.transferToClient(transferDto)
+
+    return {
+      object: transfer,
+      message: `Funds in the amount ${transferDto.amountToTransfer}$ successfully delivered to ${transferDto.recipientAccountNumber} Bank Account`,
+      postBalance: transfer.balance
     }
-    throw new BadRequestException();
   }
 }
